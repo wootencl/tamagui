@@ -896,11 +896,15 @@ export class MetroCompilerFrontend {
     const materialized = materializeModule(graph, id)
     // Metro has no module runner; packages a file uses that are not in
     // `components` evaluate under the static-evaluation require hooks, once
-    await this.#discovery.prepare(materialized, registry, ({ id: moduleId }) =>
-      Static.evaluateComponentModule(
-        { ...this.config.tamaguiOptions, platform: target },
-        moduleId
-      )
+    await this.#discovery.prepare(
+      materialized,
+      registry,
+      ({ id: moduleId }) =>
+        Static.evaluateComponentModule(
+          { ...this.config.tamaguiOptions, platform: target },
+          moduleId
+        ),
+      this.config.tamaguiOptions?.dangerouslyIgnoreStaticEvaluationModules
     )
     const plan = lowerModule({
       module: materialized,

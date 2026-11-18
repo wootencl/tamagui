@@ -69,6 +69,39 @@ describe('component discovery', () => {
     expect(seen.filter((id) => id.endsWith('/fixtures/external/ui.tsx'))).toHaveLength(1)
   })
 
+  test('a package in dangerouslyIgnoreStaticEvaluationModules is never evaluated', async () => {
+    const seen: string[] = []
+    const evaluate = async ({ id }: { id: string }) => {
+      seen.push(id)
+      return (await import(id)) as Record<string, unknown>
+    }
+    const options = {
+      components: ['@tamagui/core'],
+      dangerouslyIgnoreStaticEvaluationModules: ['@fixture/ui'],
+    }
+    const ignored = await extractForWeb(source, {
+      evaluate,
+      options,
+      sourcePath: `${process.cwd()}/tests/__discovery-ignored-a__.tsx`,
+    })
+    expect(seen).toEqual([])
+    expect(ignored.js).toContain('<ExternalCard')
+
+    // the skip is by specifier, so the same module imported another way still evaluates
+    const other = await extractForWeb(
+      dedent`
+        import { ExternalLabel } from '@fixture/ui.tsx'
+        export const Other = () => <ExternalLabel fontSize={12}>x</ExternalLabel>
+      `,
+      {
+        evaluate,
+        options,
+        sourcePath: `${process.cwd()}/tests/__discovery-ignored-b__.tsx`,
+      }
+    )
+    expect(other.styles).toContain('color:green')
+  })
+
   test('a discovered HOC such as a themed icon is never flattened', async () => {
     const output = await extractForWeb(dedent`
       import { ExternalIcon } from '@fixture/ui'

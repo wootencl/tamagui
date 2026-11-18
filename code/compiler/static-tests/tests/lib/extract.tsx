@@ -91,6 +91,8 @@ function projectFor(target: 'web' | 'native', opts: ExtractOptions): CompilerPro
     config,
     components,
     disablePartialExtraction: opts.disablePartialExtraction,
+    dangerouslyIgnoreStaticEvaluationModules:
+      options.dangerouslyIgnoreStaticEvaluationModules,
     experimentalNativeFastPath:
       target === 'native' && opts.options?.experimental?.nativeFastPath === true,
   })
@@ -114,6 +116,8 @@ function projectFor(target: 'web' | 'native', opts: ExtractOptions): CompilerPro
     componentModules,
     generation: key,
     disablePartialExtraction: opts.disablePartialExtraction,
+    dangerouslyIgnoreStaticEvaluationModules:
+      options.dangerouslyIgnoreStaticEvaluationModules,
     experimentalNativeFastPath:
       target === 'native' && opts.options?.experimental?.nativeFastPath === true,
   }

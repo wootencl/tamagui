@@ -6,6 +6,7 @@ import {
   getComponentStaticConfigByName,
   type LoadedComponents,
 } from './extractor/bundleConfig'
+import { isIgnoredStaticEvaluationModule } from './staticEvaluationIgnoredModules'
 
 /**
  * Evaluate a host-resolved module and return its exports, or null when the
@@ -58,7 +59,8 @@ export class ComponentDiscovery {
   async prepare(
     module: MaterializedModule,
     registry: CompilerComponentRegistry,
-    evaluate: ComponentModuleEvaluator | undefined
+    evaluate: ComponentModuleEvaluator | undefined,
+    ignoredModules: readonly string[] = []
   ): Promise<void> {
     if (!evaluate) return
     const seen = new Set<string>()
@@ -71,6 +73,16 @@ export class ComponentDiscovery {
       // already models its styled definitions, and evaluating app code at
       // build time runs its side effects
       if (!provenance || !isPackageSpecifier(provenance.specifier)) continue
+      // matched by specifier like the static-evaluation require hooks, and not
+      // recorded by id, so another specifier for the same module still evaluates
+      if (isIgnoredStaticEvaluationModule(provenance.specifier, ignoredModules)) {
+        if (process.env.DEBUG === 'tamagui') {
+          console.info(
+            `[tamagui] component discovery skipped ${provenance.specifier}: ignored for static evaluation`
+          )
+        }
+        continue
+      }
       const id = provenance.resolvedId.split(/[?#]/, 1)[0]
       if (seen.has(id) || registry.modulesById.has(id) || this.#discovered.has(id)) {
         continue

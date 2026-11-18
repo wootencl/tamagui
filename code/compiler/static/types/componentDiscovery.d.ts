@@ -22,6 +22,6 @@ export declare class ComponentDiscovery {
     ids(): string[];
     /** re-register everything found so far into a freshly built registry */
     seed(registry: CompilerComponentRegistry): void;
-    prepare(module: MaterializedModule, registry: CompilerComponentRegistry, evaluate: ComponentModuleEvaluator | undefined): Promise<void>;
+    prepare(module: MaterializedModule, registry: CompilerComponentRegistry, evaluate: ComponentModuleEvaluator | undefined, ignoredModules?: readonly string[]): Promise<void>;
 }
 //# sourceMappingURL=componentDiscovery.d.ts.map

@@ -644,7 +644,9 @@ compiler to optimize components from other packages.
 A package that cannot run in Node during the build (one that touches native
 modules at import time, for example) is skipped with a debug message, and the
 elements that use it stay on the runtime path. Set `DEBUG=tamagui` to see which
-modules discovery skipped and why.
+modules discovery skipped and why. Discovery never evaluates a package listed in
+`dangerouslyIgnoreStaticEvaluationModules`, which keeps a runtime-only package
+from running its import-time side effects, such as logging, in the build.
 
 ### Disabling the compiler
 

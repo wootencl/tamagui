@@ -12,6 +12,8 @@ export interface CompilerProject {
     generation: string;
     /** Keep elements with dynamic style props fully on the runtime path. */
     disablePartialExtraction?: boolean;
+    /** Package specifiers component discovery never evaluates. */
+    dangerouslyIgnoreStaticEvaluationModules?: readonly string[];
     /** emit native theme-token mappings for the native style engine */
     experimentalNativeFastPath?: boolean;
     /** Zero-runtime mode, which makes the host's diagnostics mode-aware. */

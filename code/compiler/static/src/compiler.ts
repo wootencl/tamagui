@@ -37,6 +37,8 @@ export interface CompilerProject {
   generation: string
   /** Keep elements with dynamic style props fully on the runtime path. */
   disablePartialExtraction?: boolean
+  /** Package specifiers component discovery never evaluates. */
+  dangerouslyIgnoreStaticEvaluationModules?: readonly string[]
   /** emit native theme-token mappings for the native style engine */
   experimentalNativeFastPath?: boolean
   /** Zero-runtime mode, which makes the host's diagnostics mode-aware. */
@@ -124,6 +126,8 @@ export async function loadCompilerProject({
         ? generation(projectInfo, componentModules, options)
         : generation,
     disablePartialExtraction,
+    dangerouslyIgnoreStaticEvaluationModules:
+      options.dangerouslyIgnoreStaticEvaluationModules,
     experimentalNativeFastPath,
     zeroRuntime: zeroRuntime !== 'off',
     cacheStamp: compilerProjectStamp({
@@ -407,7 +411,13 @@ export class CompilerFrontend {
         async load(id) {
           return modules.get(id) ?? null
         },
-        prepare: (module) => this.discovery.prepare(module, registry, input.evaluate),
+        prepare: (module) =>
+          this.discovery.prepare(
+            module,
+            registry,
+            input.evaluate,
+            input.project.dangerouslyIgnoreStaticEvaluationModules
+          ),
       },
       structuralPass: domStructuralPass,
     })
